@@ -87,8 +87,6 @@ class YomTovServlet extends ScalatraServlet with ScalateSupport {
 
   get("/dm/:day/:month/:year") { 
     val parsed_date : DateTime = TurnLineToDate("%s/%s/%s".format(params("day"), params("month"), params("year")))
-//    val parsed_date : DateTime = new DateTime().withDay(params("day") toInt).withMonth(params("month") toInt).withYear(params("year") toInt)
-    
     <html>
       <body>
         <font size='+100'>
