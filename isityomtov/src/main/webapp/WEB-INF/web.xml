@@ -7,6 +7,10 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns
 		<servlet-class>
 			com.rschonberger.isityomtov.YomTovServlet
 		</servlet-class>
+		<init-param>
+		  <param-name>config-file</param-name>
+		  <param-value>dates.txt</param-value>
+		</init-param>
 	</servlet>
 
 	<servlet-mapping>
