@@ -19,3 +19,5 @@ libraryDependencies ++= Seq(
 )
 
 resolvers += "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+
+port in container.Configuration := 8181
