@@ -22,6 +22,6 @@
 #end
   </head>
   <body>
-    <%= unescape(body) %>
+<%= unescape(body) %>
   </body>
 </html>
