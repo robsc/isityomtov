@@ -1,4 +1,5 @@
 <% attributes("title") = "Redirecting you to todays YT" %>
+<% attributes("track") = false %>
 <a id="redirect_link" href="/">Click here if you are not redirected</a>
 <script type="text/javascript">
 date = new Date();
