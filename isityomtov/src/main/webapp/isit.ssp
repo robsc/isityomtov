@@ -1,0 +1,7 @@
+<% attributes("title") = "Is it Yom Tov Today?" %>
+<%@ val yomtov: String %>
+<font size='+100'>
+  <center>
+    <%= yomtov %>
+  </center>
+</font>

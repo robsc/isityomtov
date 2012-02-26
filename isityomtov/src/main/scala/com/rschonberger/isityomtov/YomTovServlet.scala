@@ -9,7 +9,9 @@ import org.scala_tools.time.Imports._
 import scalate.ScalateSupport
 
 class YomTovServlet extends ScalatraServlet with ScalateSupport {
-  
+  // 500's show nothing useful if this is on.
+  override def isScalateErrorPageEnabled = false
+
   private val formatter: org.joda.time.format.DateTimeFormatter = { 
     // Strings like "Monday, Feb 20, 2012"
     org.joda.time.format.DateTimeFormat.forPattern("dd/MM/YYYY")
@@ -28,6 +30,7 @@ class YomTovServlet extends ScalatraServlet with ScalateSupport {
     for (d <- dates) { 
       println(d)
     }
+    super.init(config)
   }
 
   object YomTovStatus extends Enumeration {
@@ -73,26 +76,16 @@ class YomTovServlet extends ScalatraServlet with ScalateSupport {
   }
 
   get("/") { 
-    // Simple javascript: open a GET url with the correct DATE.
-    <html>
-    <head>
-    <script type="text/javascript">
-    date = new Date();
-    loc = window.location + 'dm/' + date.getDate() + '/' + (date.getMonth() + 1) + '/' + (date.getFullYear())
-    window.location = loc
-    </script>
-    </head>
-    </html>
+    contentType = "text/html"
+    templateEngine.layout("redirect.ssp")
   }
 
   get("/dm/:day/:month/:year") { 
     val parsed_date : DateTime = TurnLineToDate("%s/%s/%s".format(params("day"), params("month"), params("year")))
-    <html>
-      <body>
-        <font size='+100'>
-          <center>{isItYomTov(parsed_date)}</center>
-        </font>
-      </body>
-    </html>
+    var data: Map[String, String] = Map.empty
+    val status = (isItYomTov(parsed_date).toString)
+    data += ("yomtov" -> status)
+    contentType = "text.html"
+    templateEngine.layout("isit.ssp", data)
   }
 }

@@ -1,0 +1,8 @@
+<% attributes("title") = "Redirecting you to todays YT" %>
+<a id="redirect_link" href="/">Click here if you are not redirected</a>
+<script type="text/javascript">
+date = new Date();
+loc = window.location + 'dm/' + date.getDate() + '/' + (date.getMonth() + 1) + '/' + (date.getFullYear());
+document.getElementById("redirect_link").href = loc;
+window.location = loc;
+</script>

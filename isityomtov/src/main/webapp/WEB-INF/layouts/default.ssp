@@ -1,0 +1,12 @@
+<%@ var body: String %> 
+<%@ val title: String = "Is it YT?" %>
+<html>
+  <head>
+  <title>
+  <%= title %>
+  </title>
+  </head>
+  <body>
+    <%= unescape(body) %>
+  </body>
+</html>
