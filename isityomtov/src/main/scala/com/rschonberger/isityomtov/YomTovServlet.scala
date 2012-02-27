@@ -8,6 +8,16 @@ import scala.io.Source
 import org.scala_tools.time.Imports._
 import scalate.ScalateSupport
 
+object YomTovStatus extends Enumeration {
+  type YomTovStatus = Value
+  val No, Yes = Value
+  val FromSunset = Value("From sunset on")
+  val UntilSundown = Value("Until sundown")
+  val Unknown = Value("I Don't know!")
+}
+
+class YomTovInfo (val date: DateTime, val description: String, val link: String)
+
 class YomTovServlet extends ScalatraServlet with ScalateSupport {
   // 500's show nothing useful if this is on.
   override def isScalateErrorPageEnabled = false
@@ -17,6 +27,22 @@ class YomTovServlet extends ScalatraServlet with ScalateSupport {
     org.joda.time.format.DateTimeFormat.forPattern("dd/MM/YYYY")
   }
   var dates: Set[DateTime] = new scala.collection.immutable.HashSet[DateTime];
+  var infos: Map[DateTime, YomTovInfo] = scala.collection.immutable.HashMap.empty[DateTime, YomTovInfo];
+
+  private def TurnLineToInfo(line: String): YomTovInfo = { 
+    val info: Array[String] = line split ','
+    val date = TurnLineToDate (info(0))
+    new YomTovInfo(date, info(1), info(2))
+  }
+
+  private def getInfoForDate(date: DateTime): YomTovInfo = { 
+    lazy val nothing = new YomTovInfo(date, "It's nothing important. Get to work!", "http://en.wikipedia.org/wiki/Manual_labour")
+    lazy val shabbos = new YomTovInfo(date, "It is the Sabbath", "http://www.youtube.com/watch?v=GPo9OBrIOi4")
+    infos get date match { 
+    case Some(x) => x
+    case _ => if (date.dayOfWeek.getAsText  == "Saturday") shabbos else nothing
+    }
+  }
 
   private def TurnLineToDate(dateLine: String): DateTime = { 
     formatter parseDateTime dateLine
@@ -24,39 +50,31 @@ class YomTovServlet extends ScalatraServlet with ScalateSupport {
   override def init(config: ServletConfig): Unit = { 
     val file_name: String = config getInitParameter "config-file"
     val file_data: Source = Source fromFile file_name;
-    val mutable_dates: scala.collection.immutable.Set[DateTime] = new scala.collection.immutable.HashSet[DateTime]
-
-    dates = mutable_dates ++ ((file_data getLines) map TurnLineToDate)
-    for (d <- dates) { 
-      println(d)
-    }
+    val info_list = ((file_data getLines) map TurnLineToInfo)
+    infos ++= info_list map (x => (x.date -> x))
+    dates ++= ((infos mapValues {x => x.date }) values)
+    println (info_list)
     super.init(config)
   }
 
-  object YomTovStatus extends Enumeration {
-    type YomTovStatus = Value
-    val No, Yes = Value
-    val FromSunset = Value("From sunset on")
-    val UntilSundown = Value("Until sundown")
-    val Unknown = Value("I Don't know!")
-  }
   import YomTovStatus._
 
-  def isItYomTov(date: DateTime): YomTovStatus = { 
+  def isItYomTov(date: DateTime): (YomTovStatus, YomTovInfo) = { 
+    lazy val todayInfo = getInfoForDate(date)
+    lazy val tomorrowInfo = getInfoForDate(date + 1.day)
     if (date.getYear != 2012) { 
-      Unknown
+      (Unknown, todayInfo)
     } else { 
       (isItYomTovToday(date - 1.day), isItYomTovToday(date), isItYomTovToday(date + 1.day)) match { 
-	case (_, true, false) => UntilSundown
-	case (_, true, true) => Yes
-	case (_, false, true) => FromSunset
-	case _ => No
+	case (_, true, false) => (UntilSundown, todayInfo)
+	case (_, true, true) => (Yes, todayInfo)
+	case (_, false, true) => (FromSunset, tomorrowInfo)
+	case _ => (No, todayInfo)
       }
     }
   }
 
   def isItYomTovToday(date:DateTime):Boolean = {
-    println (date)
     if (dates contains date) { 
       true
     } else { 
@@ -82,9 +100,9 @@ class YomTovServlet extends ScalatraServlet with ScalateSupport {
 
   get("/dm/:day/:month/:year") { 
     val parsed_date : DateTime = TurnLineToDate("%s/%s/%s".format(params("day"), params("month"), params("year")))
-    var data: Map[String, String] = Map.empty
-    val status = (isItYomTov(parsed_date).toString)
-    data += ("yomtov" -> status)
+    var data: Map[String, AnyRef] = Map.empty
+    val (status, info) = (isItYomTov(parsed_date))
+    data ++= Array(("yomtov" -> (status toString)), ("info" -> info))
     contentType = "text.html"
     templateEngine.layout("isit.ssp", data)
   }

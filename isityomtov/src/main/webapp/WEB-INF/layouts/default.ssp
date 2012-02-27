@@ -10,12 +10,22 @@
       font-size: 1500%;
       text-align: center;
       }
+
+      .smallcenter {
+      padding-bottom: 2em;
+      text-align: center;
+      }
+      
       body, footer {
       display: block;
       }
       footer p {
       margin-bottom: -2.5em;
       position: relative;
+      }
+      .twitter {
+        font-family: helvetica,sans-serif;
+	vertical-align: 0.2em;
       }
     </style>
   <title>
