@@ -93,6 +93,7 @@ class YomTovServlet extends ScalatraServlet with ScalateSupport {
 
   get("/") { 
     contentType = "text/html"
+    response.setHeader("Cache-control", "max-age=86400,public")
     templateEngine.layout("redirect.ssp")
   }
 
@@ -102,6 +103,10 @@ class YomTovServlet extends ScalatraServlet with ScalateSupport {
     val (status, info) = (isItYomTov(parsed_date))
     data ++= Array(("yomtov" -> (status toString)), ("info" -> info))
     contentType = "text.html"
+    if (status != Unknown) { 
+      // Keep results as cacheable as possible
+      response.setHeader("Cache-control", "max-age=86400,public")
+    }
     templateEngine.layout("isit.ssp", data)
   }
 }
