@@ -19,9 +19,8 @@ object YomTovStatus extends Enumeration {
 class YomTovInfo (val date: DateTime, val description: String, val link: String)
 
 class YomTovServlet extends ScalatraServlet with ScalateSupport {
-  // 500's show nothing useful if this is on.
-  override def isScalateErrorPageEnabled = false
-
+  // Set to true as needed when developing.
+  override def isDevelopmentMode = false
   private val formatter: org.joda.time.format.DateTimeFormatter = { 
     // Strings like "Monday, Feb 20, 2012"
     org.joda.time.format.DateTimeFormat.forPattern("dd/MM/YYYY")
@@ -53,7 +52,6 @@ class YomTovServlet extends ScalatraServlet with ScalateSupport {
     val info_list = ((file_data getLines) map TurnLineToInfo)
     infos ++= info_list map (x => (x.date -> x))
     dates ++= ((infos mapValues {x => x.date }) values)
-    println (info_list)
     super.init(config)
   }
 
