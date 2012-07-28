@@ -111,9 +111,8 @@ class YomTovServlet extends ScalatraServlet with ScalateSupport {
 
   get("/dm/:day/:month/:year") {
     val parsed_date: DateTime = TurnLineToDate("%s/%s/%s".format(params("day"), params("month"), params("year")))
-    var data: Map[String, AnyRef] = Map.empty
     val (status, info) = (isItYomTov(parsed_date))
-    data ++= Array(("yomtov" -> (status toString)), ("info" -> info))
+    val data: Map[String, AnyRef] = HashMap(("yomtov" -> (status toString)), ("info" -> info))
     contentType = "text.html"
     if (status != Unknown) {
       // Keep results as cacheable as possible
