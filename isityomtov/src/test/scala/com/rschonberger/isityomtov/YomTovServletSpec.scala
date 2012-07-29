@@ -17,12 +17,16 @@ class NoConfigYomTovServlet extends YomTovServlet {
 // For more on Specs2, see http://etorreborre.github.com/specs2/guide/org.specs2.guide.QuickStart.html 
 class YomTovServletSpec extends ScalatraSpec { def is =
   "GET / on YomTovServlet"                     ^
-    "should return status 200"                  ! root200^
+    "should return status 200"                  ! root200 ^ highDate200^
                                                 end
     
   addServlet(classOf[NoConfigYomTovServlet], "/*")
 
   def root200 = get("/") { 
+    status must_== 200
+  }
+
+  def highDate200 = get("/dm/24/02/2015") {
     status must_== 200
   }
 }
