@@ -10,7 +10,7 @@ object YomTovData {
 class YomTovData(private val config_file_data: Iterator[String]) {
   val infos: Map[DateTime, YomTovInfo] = createInfos
   val dates: Set[DateTime] = HashSet.empty ++ infos.keys
-
+  val lastDate: DateTime = dates.max(YomTovData.dateOrdering)
 
   private def nextSaturday(date: DateTime): DateTime = {
     val dayOfWeek: Int = date.getDayOfWeek()

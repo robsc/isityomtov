@@ -45,12 +45,12 @@ class YomTovServlet extends ScalatraServlet with ScalateSupport {
 
   import YomTovStatus._
 
-  def isItYomTov(date: DateTime): (YomTovStatus, YomTovInfo) = {
+  def isItYomTov(date: DateTime): (YomTovStatus, Option[YomTovInfo]) = {
     import org.scala_tools.time.Imports._
-    lazy val todayInfo = getInfoForDate(date)
-    lazy val tomorrowInfo = getInfoForDate(date + 1.day)
-    if (date.getYear != 2012) {
-      (Unknown, todayInfo)
+    lazy val todayInfo = Some(getInfoForDate(date))
+    lazy val tomorrowInfo = Some(getInfoForDate(date + 1.day))
+    if (date > yomTovData.lastDate) {
+      (Unknown, None)
     } else {
       (isItYomTovToday(date - 1.day), isItYomTovToday(date), isItYomTovToday(date + 1.day)) match {
         case (_, true, false) => (UntilSundown, todayInfo)
@@ -88,7 +88,7 @@ class YomTovServlet extends ScalatraServlet with ScalateSupport {
 
   get("/dm/:day/:month/:year") {
     val parsed_date: DateTime = YomTovDateFormatter.turnLineToDate("%s/%s/%s".format(params("day"), params("month"), params("year")))
-    val (status: YomTovStatus.YomTovStatus, info: YomTovInfo) = isItYomTov(parsed_date)
+    val (status: YomTovStatus.YomTovStatus, info: Option[YomTovInfo]) = isItYomTov(parsed_date)
     val data: Map[String, AnyRef] = HashMap(("yomtov" -> (status toString)), ("info" -> info))
     contentType = "text/html"
     if (status != Unknown) response.setHeader("Cache-control", "max-age=86400,public")

@@ -1,14 +1,16 @@
 <%@ val yomtov: String %>
-<%@ val info: com.rschonberger.isityomtov.YomTovInfo %>
+<%@ val info: Option[com.rschonberger.isityomtov.YomTovInfo] %>
 <% attributes("title") = "Is it Yom Tov Today? " + yomtov %>
 <div class="largecenter">
   <%= yomtov %>
 </div>
-#if (info != null)
 <div class="smallcenter">
-  <a href="<%= unescape(info.link) %>"><%=info.description%></a>
-</div>
+#if (info == None)
+  <em>I don't know anything about this day.</em>
+#else
+  <a href="<%= unescape(info.get.link) %>"><%=info.get.description%></a>
 #end
+</div>
 <footer><p>
   <center>
     <a href="https://twitter.com/share" class="twitter-share-button" data-via="IsItYomTov">Tweet</a>
