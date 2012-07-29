@@ -7,24 +7,6 @@ import scala.io.Source
 import org.scalatra.ScalatraServlet
 import org.scalatra.scalate.ScalateSupport
 import collection.immutable.{HashSet, HashMap}
-import org.joda.time.format.DateTimeFormat
-
-class YomTovData(private val config_file_data: Iterator[String]) {
-  val infos: Map[DateTime, YomTovInfo] = createInfos
-  val dates: Set[DateTime] = HashSet.empty ++ infos.keys
-
-  private def createInfos: Map[DateTime, YomTovInfo] = {
-    val info_list = config_file_data map TurnLineToInfo
-    val info_mapped = info_list map (x => (x.date -> x))
-    HashMap.empty ++ info_mapped
-  }
-
-  private def TurnLineToInfo(line: String): YomTovInfo = {
-    val info: Array[String] = line split ','
-    val date = YomTovDateFormatter.turnLineToDate(info(0))
-    new YomTovInfo(date, info(1), info(2))
-  }
-}
 
 class YomTovServlet extends ScalatraServlet with ScalateSupport {
   // Set to true as needed when developing.
@@ -40,20 +22,25 @@ class YomTovServlet extends ScalatraServlet with ScalateSupport {
 
   private def getInfoForDate(date: DateTime): YomTovInfo = {
     lazy val nothing = new YomTovInfo(date, "It's nothing important. Get to work!", "http://en.wikipedia.org/wiki/Manual_labour")
-    lazy val shabbos = new YomTovInfo(date, "It is the Sabbath", "http://www.youtube.com/watch?v=GPo9OBrIOi4")
     yomTovData.infos get date match {
       case Some(x) => x
-      case _ => if (date.dayOfWeek.getAsText == "Saturday") shabbos else nothing
+      case _ => nothing
     }
   }
 
   override def init(config: ServletConfig): Unit = {
+    val file_lines: scala.Iterator[String] = getLines(config)
+    yomTovData = new YomTovData(file_lines)
+
+    super.init(config)
+  }
+
+
+  def getLines(config: ServletConfig): scala.Iterator[String] = {
     val file_name: String = config getInitParameter "config-file"
     val file_data: Source = Source fromFile file_name
     val file_lines: Iterator[String] = file_data.getLines
-    yomTovData = new YomTovData(file_lines)
-    file_data.close()
-    super.init(config)
+    file_lines
   }
 
   import YomTovStatus._
