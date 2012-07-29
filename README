@@ -1,1 +1,7 @@
 First attempt at a cute YES/NO YomTov site.
+
+This is now running at http://www.isityomtov.com
+
+Very simple: read a (finite) database of days that are holidays, turn them into a hashmap.
+
+At runtime, redirect users to a date URL, and the server just checks its map. 
