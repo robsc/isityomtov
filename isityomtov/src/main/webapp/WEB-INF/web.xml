@@ -9,7 +9,7 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns
 		</servlet-class>
 		<init-param>
 		  <param-name>config-file</param-name>
-		  <param-value>dates.csv</param-value>
+		  <param-value>./WEB-INF/classes/dates.csv</param-value>
 		</init-param>
 	</servlet>
 

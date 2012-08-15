@@ -38,7 +38,8 @@ class YomTovServlet extends ScalatraServlet with ScalateSupport {
 
   def getLines(config: ServletConfig): scala.Iterator[String] = {
     val file_name: String = config getInitParameter "config-file"
-    val file_data: Source = Source fromFile file_name
+    val file_dir: String = (config.getServletContext()) getRealPath file_name
+    val file_data: Source = Source fromFile file_dir
     val file_lines: Iterator[String] = file_data.getLines
     file_lines
   }
